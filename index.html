@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Agujero Negro del Amor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&family=Quicksand:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html,body{width:100%;height:100%;min-height:100dvh;overflow:hidden;background:#000;font-family:'Quicksand',sans-serif;overscroll-behavior:none;}
+    body{touch-action:none;}
+    canvas{touch-action:none;}
+    canvas{display:block;position:fixed;inset:0;width:100vw;height:100dvh;}
+
+    /* ── NUEVO MODAL ESTILO ROSA ── */
+    #modal{
+      position:fixed;inset:0;z-index:9999;
+      display:flex;justify-content:center;align-items:center;
+      background:#F9B8D4;
+      transition:opacity 1s ease;
+    }
+    #modal.oculto{opacity:0;pointer-events:none;}
+
+    .card{
+      background:#fff;
+      border-radius:28px;
+      padding:26px 26px 30px;
+      width:min(340px, 88vw);
+      display:flex;flex-direction:column;align-items:center;gap:0;
+      box-shadow:0 6px 32px rgba(220,80,130,0.13);
+    }
+
+    .card-img-wrap{
+      width:100%;border-radius:14px;overflow:hidden;
+      border:none;
+      margin-bottom:22px;
+      aspect-ratio:4/3;
+      background:#0a0015;
+      position:relative;
+    }
+    .card-img-wrap img{
+      width:100%;height:100%;object-fit:cover;display:block;border-radius:14px;
+    }
+
+    .card-quote{
+      font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;
+      font-size:clamp(1.15rem,4.5vw,1.35rem);
+      color:#1a1a2e;text-align:center;line-height:1.45;
+      margin-bottom:10px;
+    }
+    .card-sub{
+      font-size:0.62rem;font-weight:600;letter-spacing:5px;text-transform:uppercase;
+      color:rgba(180,80,140,0.55);margin-bottom:26px;
+    }
+
+    #btn-entrar{
+      width:100%;
+      font-family:'Quicksand',sans-serif;font-size:0.74rem;font-weight:600;
+      letter-spacing:4px;text-transform:uppercase;
+      padding:1rem 0;
+      background:#fff;
+      color:#E0306A;
+      border:1.5px solid #E0306A;
+      border-radius:50px;
+      cursor:pointer;
+      transition:all 0.3s ease;
+      display:flex;align-items:center;justify-content:center;gap:10px;
+    }
+    #btn-entrar:hover{background:#fdf0f4;}
+    #btn-entrar .heart{font-size:0.9rem;}
+
+    .top-text{
+      position:fixed;top:5%;left:50%;transform:translateX(-50%);
+      font-family:'Cormorant Garamond',serif;font-style:italic;
+      font-size:clamp(1.1rem,3.5vw,1.9rem);
+      color:rgba(255,210,235,0.82);z-index:10;pointer-events:none;white-space:nowrap;
+      text-shadow:0 0 28px rgba(255,100,180,0.45);display:none;
+    }
+    #hint{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);font-size:0.62rem;letter-spacing:3px;text-transform:uppercase;color:rgba(255,180,220,0.25);pointer-events:none;z-index:10;display:none;}
+
+
+    /* Ajustes reales para celular vertical y horizontal */
+    @media (max-width: 700px){
+      .card{width:min(360px,92vw);padding:18px 18px 22px;border-radius:22px;}
+      .card-img-wrap{margin-bottom:16px;}
+      .card-sub{margin-bottom:18px;letter-spacing:3px;}
+      #btn-entrar{padding:.9rem 0;letter-spacing:2.5px;}
+      .top-text{top:max(3%,env(safe-area-inset-top));max-width:92vw;white-space:normal;text-align:center;}
+      #hint{bottom:max(12px,env(safe-area-inset-bottom));width:92vw;text-align:center;}
+    }
+    @media (orientation:landscape) and (max-height:600px){
+      .card{width:min(520px,92vw);max-height:92dvh;padding:12px 16px 14px;}
+      .card-img-wrap{height:min(30dvh,120px);aspect-ratio:auto;margin-bottom:10px;}
+      .card-quote{font-size:clamp(.95rem,2.8vw,1.15rem);line-height:1.25;margin-bottom:4px;}
+      .card-sub{font-size:.52rem;margin-bottom:10px;letter-spacing:3px;}
+      #btn-entrar{padding:.68rem 0;font-size:.66rem;}
+      .top-text{top:2.5%;font-size:clamp(.95rem,2.6vw,1.35rem);}
+    }
+    @media (prefers-reduced-motion: reduce){
+      #modal{transition:opacity .25s ease;}
+    }
+  </style>
+</head>
+<body>
+
+<div id="modal">
+  <div class="card">
+    <div class="card-img-wrap">
+      <img src="https://i.postimg.cc/mgpQLsR9/desktop-wallpaper-cats-tumblr-galaxy-galaxy-cat.jpg" alt="Galaxia" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/NGC_4414_%28NASA-med%29.jpg/600px-NGC_4414_%28NASA-med%29.jpg'">
+    </div>
+    <div class="card-quote">Por Ser Tu Día Toma una Galaxia Para Tí Solita🪐</div>
+    <div class="card-sub">Un universo · solo para ti</div>
+    <button id="btn-entrar">
+      <span class="heart">♡</span> Para las mas bonita <span class="heart">♡</span>
+    </button>
+  </div>
+</div>
+
+<div class="top-text" id="top-text"> ♡</div>
+<div id="hint"></div>
+<canvas id="galaxy"></canvas>
+
+<audio id="musica" loop>
+  <source src="https://files.catbox.moe/p67012.mp3" type="audio/mpeg">
+</audio>
+
+
+
+
+<script>
+document.getElementById('btn-entrar').addEventListener('click',()=>{
+  const m=document.getElementById('modal');
+  m.classList.add('oculto');
+  setTimeout(()=>m.style.display='none',1000);
+  document.getElementById('top-text').style.display='block';
+  const isMobile=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+  if(isMobile)document.getElementById('hint').style.display='block';
+  const a=document.getElementById('musica');a.currentTime=16;a.play().catch(()=>{});
+});
+</script>
+
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+/* ===== OPTIMIZACIÓN AUTOMÁTICA SEGÚN EL DISPOSITIVO ===== */
+const coarse = matchMedia('(pointer:coarse)').matches;
+const mobile = coarse || Math.min(innerWidth,innerHeight) < 760;
+const cores = navigator.hardwareConcurrency || 4;
+const memory = navigator.deviceMemory || 4;
+const lowPower = mobile && (cores <= 4 || memory <= 4);
+const quality = lowPower ? 0 : (mobile ? 1 : 2);
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const Q = {
+  stars:[550,900,1800],
+  galaxy:[14000,24000,50000],
+  arms:[2200,4000,8500],
+  heart:[2200,3500,6500],
+  phrases:[38,52,70],
+  emojis:[12,16,20],
+  pixelRatio:[1,1.2,1.65]
+};
+
+const renderer=new THREE.WebGLRenderer({
+  canvas:document.getElementById('galaxy'),
+  antialias:quality===2,
+  alpha:true,
+  powerPreference:'high-performance',
+  precision: quality===0 ? 'mediump' : 'highp'
+});
+renderer.setPixelRatio(Math.min(devicePixelRatio,Q.pixelRatio[quality]));
+renderer.setSize(innerWidth,innerHeight,false);
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=0.90;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,0.1,200000);
+
+function fitCamera(){
+  const aspect=innerWidth/innerHeight;
+  const portrait=aspect<0.82;
+  if(mobile){
+    camera.fov=portrait?68:58;
+    camera.position.set(0,portrait?170:135,portrait?1180:900);
+  }else{
+    camera.fov=60;
+    camera.position.set(0,200,700);
+  }
+  camera.aspect=aspect;
+  camera.updateProjectionMatrix();
+}
+fitCamera();
+
+const controls=new OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true;
+controls.dampingFactor=0.06;
+controls.minDistance=70;
+controls.maxDistance=2200;
+controls.zoomSpeed=mobile?1.25:1.05;
+controls.rotateSpeed=mobile?0.5:0.8;
+controls.enablePan=false;
+controls.minPolarAngle=Math.PI*0.2;
+controls.maxPolarAngle=Math.PI*0.8;
+controls.touches={ONE:THREE.TOUCH.ROTATE,TWO:THREE.TOUCH.DOLLY_PAN};
+
+/* Bloom completo en PC, más liviano en móvil y desactivado en equipos muy justos */
+let composer=null;
+if(quality>0){
+  composer=new EffectComposer(renderer);
+  composer.setPixelRatio(Math.min(devicePixelRatio,quality===1?1:1.35));
+  composer.addPass(new RenderPass(scene,camera));
+  const bloom=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight));
+  bloom.threshold=quality===1?0.72:0.65;
+  bloom.strength=quality===1?0.30:0.42;
+  bloom.radius=quality===1?0.22:0.30;
+  composer.addPass(bloom);
+}
+
+const col=new THREE.Color();
+
+function makePoints(count,fillFn,size,opacity=1){
+  const pos=new Float32Array(count*3), color=new Float32Array(count*3);
+  for(let i=0;i<count;i++) fillFn(i,i*3,pos,color);
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  g.setAttribute('color',new THREE.BufferAttribute(color,3));
+  const m=new THREE.PointsMaterial({size,vertexColors:true,blending:THREE.AdditiveBlending,transparent:true,opacity,depthWrite:false});
+  return new THREE.Points(g,m);
+}
+
+const stars=makePoints(Q.stars[quality],(i,i3,pos,color)=>{
+  const theta=Math.random()*Math.PI*2;
+  const phi=Math.acos(2*Math.random()-1);
+  const r=12000+Math.random()*60000;
+  pos[i3]=r*Math.sin(phi)*Math.cos(theta);
+  pos[i3+1]=r*Math.sin(phi)*Math.sin(theta);
+  pos[i3+2]=r*Math.cos(phi);
+  col.setHSL(Math.random()<.55?.08:0,.03,.94+Math.random()*.06);
+  color[i3]=col.r;color[i3+1]=col.g;color[i3+2]=col.b;
+},mobile?1.7:2.2,.62);
+scene.add(stars);
+
+let galaxyMesh=makePoints(Q.galaxy[quality],(i,i3,pos,color)=>{
+  const ARMS=5,SPIN=4.5,SPREAD=.38,H=55;
+  const arm=i%ARMS,t=Math.pow(Math.random(),.55),rad=60+t*980;
+  const a=(arm/ARMS)*Math.PI*2+t*SPIN+(Math.random()-.5)*SPREAD*(1+t*1.5);
+  pos[i3]=Math.cos(a)*rad;
+  pos[i3+1]=(Math.random()-.5)*H*Math.exp(-rad/500);
+  pos[i3+2]=Math.sin(a)*rad;
+  const nt=rad/1050;
+  if(nt<.1) col.setHSL(.05,.15,.96);
+  else if(nt<.3) col.setHSL(.93+Math.random()*.04,.80,.78+Math.random()*.12);
+  else if(nt<.6) col.setHSL(.95+Math.random()*.04,.85,.62+Math.random()*.15);
+  else col.setHSL(.88+Math.random()*.06,.90,.48+Math.random()*.18);
+  color[i3]=col.r;color[i3+1]=col.g;color[i3+2]=col.b;
+},mobile?1.5:2.0,.92);
+scene.add(galaxyMesh);
+
+let armsMesh=makePoints(Q.arms[quality],(i,i3,pos,color)=>{
+  const n=Q.arms[quality],t=i/n,arm=i%5,base=(arm/5)*Math.PI*2;
+  const r=70+t*960,ang=base+t*Math.PI*4.2;
+  pos[i3]=Math.cos(ang)*r;pos[i3+1]=(Math.random()-.5)*10;pos[i3+2]=Math.sin(ang)*r;
+  col.setHSL(.94+Math.random()*.04,.25,.92+Math.random()*.08);
+  color[i3]=col.r;color[i3+1]=col.g;color[i3+2]=col.b;
+},mobile?2.2:3.0,1);
+scene.add(armsMesh);
+
+const sphereSeg=mobile?32:48;
+scene.add(new THREE.Mesh(new THREE.SphereGeometry(42,sphereSeg,sphereSeg),new THREE.MeshBasicMaterial({color:0x000000})));
+
+const haloMat=new THREE.ShaderMaterial({
+  uniforms:{uTime:{value:0}},
+  vertexShader:`varying vec3 vN;void main(){vN=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+  fragmentShader:`uniform float uTime;varying vec3 vN;void main(){float rim=1.-max(dot(vN,vec3(0,0,1)),0.);rim=pow(rim,3.0);float p=.78+.18*sin(uTime*1.8);vec3 c=mix(vec3(.28,.0,.12),vec3(.95,.28,.62),rim)*rim*p;gl_FragColor=vec4(c,rim*.48);}`,
+  transparent:true,side:THREE.FrontSide,depthWrite:false,blending:THREE.AdditiveBlending
+});
+scene.add(new THREE.Mesh(new THREE.SphereGeometry(53,sphereSeg,sphereSeg),haloMat));
+
+function mkDisk(inner,outer,c1,c2,c3,op,rx){
+  const mat=new THREE.ShaderMaterial({
+    uniforms:{uTime:{value:0},uIn:{value:inner},uOut:{value:outer},uC1:{value:new THREE.Color(c1)},uC2:{value:new THREE.Color(c2)},uC3:{value:new THREE.Color(c3)}},
+    vertexShader:`varying vec3 vP;void main(){vP=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+    fragmentShader:`uniform float uTime,uIn,uOut;uniform vec3 uC1,uC2,uC3;varying vec3 vP;float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}void main(){float r=length(vP.xy);float t=clamp((r-uIn)/(uOut-uIn),0.,1.);vec3 c=t<.4?mix(uC1,uC2,t/.4):mix(uC2,uC3,(t-.4)/.6);float ang=atan(vP.y,vP.x);float sw=h(vec2(r*.1,ang+uTime*.25))*.22;float glow=(1.-t)*(1.-t)*1.1+sw*.25;float a=(1.-t)*(1.-t*t)*${op.toFixed(2)}+sw*.08;gl_FragColor=vec4(c*glow,clamp(a,0.,1.));}`,
+    side:THREE.DoubleSide,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false
+  });
+  const seg=mobile?112:192;
+  const m=new THREE.Mesh(new THREE.RingGeometry(inner,outer,seg,4),mat);
+  m.rotation.x=rx;scene.add(m);return mat;
+}
+const dM1=mkDisk(48,165,'#FFFFFF','#FFB8D8','#880044',.60,Math.PI/2);
+const dM2=mkDisk(56,132,'#FFD6E8','#E8508A','#3D001A',.32,Math.PI/2+.13);
+const dM3=mkDisk(165,295,'#FF8CB8','#AA0050','#000000',.16,Math.PI/2);
+
+function mkJet(dir){
+  const mat=new THREE.ShaderMaterial({
+    uniforms:{uTime:{value:0}},
+    vertexShader:`varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+    fragmentShader:`uniform float uTime;varying vec2 vU;void main(){float f=pow(1.-vU.y,2.)*(1.-vU.x*2.);float p=.6+.28*sin(uTime*3.8+vU.y*9.);vec3 c=mix(vec3(1.,.72,.88),vec3(.72,.0,.38),vU.y);gl_FragColor=vec4(c*p,f*.32);}`,
+    transparent:true,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false
+  });
+  const m=new THREE.Mesh(new THREE.ConeGeometry(8,225,mobile?16:24,1,true),mat);
+  m.position.y=dir*112;m.rotation.x=dir>0?0:Math.PI;scene.add(m);return mat;
+}
+const jM1=mkJet(1),jM2=mkJet(-1);
+
+/* Partículas del disco: ahora gira el grupo completo, sin recalcular cientos de puntos por frame */
+const pN=mobile?150:260;
+const pGeo=new THREE.BufferGeometry(),pBuf=new Float32Array(pN*3);
+for(let i=0;i<pN;i++){
+  const a=Math.random()*Math.PI*2,r=52+Math.random()*210;
+  pBuf[i*3]=Math.cos(a)*r;pBuf[i*3+1]=(Math.random()-.5)*7;pBuf[i*3+2]=Math.sin(a)*r;
+}
+pGeo.setAttribute('position',new THREE.BufferAttribute(pBuf,3));
+const diskPts=new THREE.Points(pGeo,new THREE.PointsMaterial({color:0xFFB0D0,size:mobile?1.7:2,transparent:true,opacity:.82,blending:THREE.AdditiveBlending,depthWrite:false}));
+scene.add(diskPts);
+
+function hXY(t){return{x:16*Math.pow(Math.sin(t),3),y:13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t)};}
+const hN=Q.heart[quality],hP=new Float32Array(hN*3),hC=new Float32Array(hN*3);
+for(let i=0;i<hN;i++){
+  const i3=i*3,t=Math.random()*Math.PI*2,s=.45+Math.random()*.55,p=hXY(t);
+  hP[i3]=p.x*s*3.8;hP[i3+1]=p.y*s*3.8;hP[i3+2]=(Math.random()-.5)*12;
+  const d=Math.sqrt(p.x*p.x+p.y*p.y)/22,hue=.94-d*.04,lig=d<.25?.90-d*.55:.62-d*.05;
+  col.setHSL(hue,.95,Math.max(lig,.40));
+  hC[i3]=col.r;hC[i3+1]=col.g;hC[i3+2]=col.b;
+}
+const hGeo=new THREE.BufferGeometry();
+hGeo.setAttribute('position',new THREE.BufferAttribute(hP,3));
+hGeo.setAttribute('color',new THREE.BufferAttribute(hC,3));
+const heart=new THREE.Points(hGeo,new THREE.PointsMaterial({size:mobile?1.9:2.5,vertexColors:true,blending:THREE.NormalBlending,transparent:true,depthWrite:false,opacity:.97}));
+scene.add(heart);
+
+const phrases=[
+  'Te quiero mucho','Eres todo','Siempre eres tú','El día eres tú','Mi verdad',
+  'Tú eres la mejor','Mi cielito lindo','Mi reina preciosa','Corazón de Melon','Eres mi paz',
+  'Mi corazón','Eres luz','Mi ángel','Te necesito','Eres especial','Solo tú','Mi felicidad','Eres perfecta',
+  'Mi sueño','Gracias por existir','Eres mi todo','Quiero estar aquí','Contigo es todo','Tú y ...','Mi mundo eres tú',
+  'Eres la mejor','Eres mi razón','Que Dios te cuide','Contigo soy todo','Eres la mas Bonita'
+];
+const sC=[
+  {fill:'#FF69B4',sh:'#C2185B'},{fill:'#FF1493',sh:'#880E4F'},{fill:'#FFB6C1',sh:'#E91E8C'},
+  {fill:'#FFFFFF',sh:'#E91E8C'},{fill:'#FFD6EC',sh:'#C2185B'},{fill:'#FF85C2',sh:'#AD1457'}
+];
+
+/* Cache: ya no se crean decenas de texturas idénticas gigantes */
+const textTextureCache=new Map();
+function getTextTexture(txt,cd){
+  const key=txt+'|'+cd.fill+'|'+cd.sh+'|'+quality;
+  if(textTextureCache.has(key)) return textTextureCache.get(key);
+  const cv=document.createElement('canvas');
+  cv.width=mobile?600:760;cv.height=mobile?132:168;
+  const cx=cv.getContext('2d',{alpha:true});
+  const fs=mobile?58:72;
+  cx.font=`600 ${fs}px 'Quicksand',sans-serif`;
+  cx.textAlign='center';cx.textBaseline='middle';cx.lineJoin='round';
+  cx.strokeStyle='rgba(0,0,0,.50)';cx.lineWidth=mobile?5:6;
+  cx.strokeText(txt,cv.width/2,cv.height/2);
+  cx.shadowColor=cd.sh;cx.shadowBlur=mobile?14:20;
+  cx.fillStyle=cd.fill;cx.fillText(txt,cv.width/2,cv.height/2);
+  const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;
+  tex.minFilter=THREE.LinearFilter;tex.magFilter=THREE.LinearFilter;tex.generateMipmaps=false;
+  textTextureCache.set(key,tex);return tex;
+}
+
+const tGrp=new THREE.Group();scene.add(tGrp);const sMs=[];
+const phraseCount=Q.phrases[quality];
+for(let i=0;i<phraseCount;i++){
+  const cd=sC[i%sC.length],txt=phrases[i%phrases.length];
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:getTextTexture(txt,cd),transparent:true,depthWrite:false,opacity:0}));
+  const arm=i%5,base=(arm/5)*Math.PI*2,t2=i/phraseCount,r=170+t2*810,ang=base+t2*Math.PI*4.2;
+  const ySpread=mobile?50:105;
+  sp.position.set(Math.cos(ang)*r,(Math.random()-.5)*ySpread,Math.sin(ang)*r);
+  sp.scale.set(mobile?155:145,mobile?34:33,1);
+  tGrp.add(sp);sMs.push(sp.material);
+}
+
+const emojis=['💖','💕','🌸','🌷','🌺','💗','✨','💫','🌹','💎','💖','🌹','💖','💕','🌸','🌷','🌺','💗','✨','💫','🌹','💎','💎','🌹'];
+const emojiTextureCache=new Map();
+function getEmojiTexture(e){
+  if(emojiTextureCache.has(e)) return emojiTextureCache.get(e);
+  const cv=document.createElement('canvas');cv.width=128;cv.height=128;
+  const cx=cv.getContext('2d');cx.font="96px 'Segoe UI Emoji','Apple Color Emoji',sans-serif";
+  cx.textAlign='center';cx.textBaseline='middle';cx.fillText(e,64,69);
+  const t=new THREE.CanvasTexture(cv);t.colorSpace=THREE.SRGBColorSpace;t.generateMipmaps=false;t.minFilter=THREE.LinearFilter;
+  emojiTextureCache.set(e,t);return t;
+}
+const eGrp=new THREE.Group();scene.add(eGrp);
+const emojiCount=Q.emojis[quality];
+for(let i=0;i<emojiCount;i++){
+  const e=emojis[i%emojis.length];
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:getEmojiTexture(e),transparent:true,depthWrite:false}));
+  const a=i/emojiCount*Math.PI*2,r=205+Math.random()*590;
+  sp.position.set(Math.cos(a)*r,(Math.random()-.5)*(mobile?85:110),Math.sin(a)*r);
+  const es=mobile?42:48;sp.scale.set(es,es,1);eGrp.add(sp);
+}
+
+scene.add(new THREE.AmbientLight(0xFFE8F8,.24));
+const pl=new THREE.PointLight(0xFF70B0,quality===0?2.0:2.7,430);scene.add(pl);
+
+function applyLayout(){
+  fitCamera();
+  renderer.setSize(innerWidth,innerHeight,false);
+  if(composer) composer.setSize(innerWidth,innerHeight);
+  const portrait=innerHeight>innerWidth;
+  heart.position.y=mobile?(portrait?95:70):135;
+}
+window.addEventListener('resize',applyLayout,{passive:true});
+window.addEventListener('orientationchange',()=>setTimeout(applyLayout,120),{passive:true});
+if(window.visualViewport) visualViewport.addEventListener('resize',applyLayout,{passive:true});
+applyLayout();
+
+const clock=new THREE.Clock();
+let visible=true,last=0;
+const targetFPS=reduceMotion?24:(quality===0?30:(quality===1?45:60));
+const minFrame=1000/targetFPS;
+document.addEventListener('visibilitychange',()=>{visible=!document.hidden;if(visible) clock.start();});
+
+function loop(now){
+  requestAnimationFrame(loop);
+  if(!visible || now-last<minFrame) return;
+  last=now;
+  const t=clock.getElapsedTime();
+  const speed=reduceMotion?.45:1;
+  galaxyMesh.rotation.y=t*.022*speed;
+  armsMesh.rotation.y=t*.022*speed;
+  tGrp.rotation.y=t*.016*speed;
+  eGrp.rotation.y=t*.010*speed;
+  diskPts.rotation.y=t*.21*speed;
+  heart.rotation.y=t*.22*speed;
+  const portrait=innerHeight>innerWidth;
+  const baseY=mobile?(portrait?95:70):135;
+  heart.position.y=baseY+Math.sin(t*1.7)*5;
+  haloMat.uniforms.uTime.value=t;
+  dM1.uniforms.uTime.value=t;dM2.uniforms.uTime.value=t;dM3.uniforms.uTime.value=t;
+  jM1.uniforms.uTime.value=t;jM2.uniforms.uTime.value=t;
+  for(let i=0;i<sMs.length;i++){
+    const m=sMs[i],tgt=.86+Math.sin(t*1.25+i*.7)*.08;
+    m.opacity += (tgt-m.opacity)*.035;
+  }
+  pl.intensity=(quality===0?1.9:2.45)+Math.sin(t*2.8)*.38;
+  controls.update();
+  if(composer) composer.render(); else renderer.render(scene,camera);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
